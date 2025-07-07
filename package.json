@@ -14,8 +14,9 @@
     "react-dom": "^18.2.0",
     "react-router": "^7.0.1",
     "@remix-run/router": "^1.19.2",
-    "@mediapipe/face_detection": "^0.4.1646425229",
-    "@mediapipe/camera_utils": "^0.3.1640029074"
+    "@tensorflow/tfjs": "^4.15.0",
+    "@tensorflow/tfjs-backend-webgl": "^4.15.0",
+    "face-api.js": "^0.22.2"
   },
   "devDependencies": {
     "@types/react": "^18.2.66",

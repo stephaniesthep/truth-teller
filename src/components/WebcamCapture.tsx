@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
-import { useFaceDetection } from '../hooks/useFaceDetection'
-import FaceOverlay from './FaceOverlay'
+import { useAdvancedFaceDetection } from '../hooks/useFaceApiDetection'
+import FaceApiOverlay from './FaceApiOverlay'
 
 interface WebcamCaptureProps {
   onCameraStart: () => void
@@ -17,6 +17,7 @@ const WebcamCapture: React.FC<WebcamCaptureProps> = ({
 }) => {
   const videoRef = useRef<HTMLVideoElement>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)
+  const overlayRef = useRef<HTMLCanvasElement>(null)
   const streamRef = useRef<MediaStream | null>(null)
   
   const [isStreaming, setIsStreaming] = useState(false)
@@ -26,11 +27,13 @@ const WebcamCapture: React.FC<WebcamCaptureProps> = ({
 
   const {
     isDetecting,
+    isModelLoading,
+    modelsLoaded,
     detectedFaces,
     startDetection,
     stopDetection,
     error: faceDetectionError
-  } = useFaceDetection()
+  } = useAdvancedFaceDetection()
 
   const startCamera = useCallback(async () => {
     setIsLoading(true)
@@ -58,12 +61,12 @@ const WebcamCapture: React.FC<WebcamCaptureProps> = ({
           setIsLoading(false)
           onCameraStart()
           
-          // Start face detection after a short delay to ensure video is ready
-          setTimeout(() => {
-            if (canvasRef.current && faceDetectionEnabled) {
-              startDetection(video, canvasRef.current)
+          // Start face detection after a longer delay to ensure video and models are ready
+          setTimeout(async () => {
+            if (faceDetectionEnabled) {
+              await startDetection(video)
             }
-          }, 500)
+          }, 1000)
         }
       }
     } catch (error) {
@@ -125,18 +128,29 @@ const WebcamCapture: React.FC<WebcamCaptureProps> = ({
     // Draw the current video frame to canvas
     context.drawImage(video, 0, 0, canvas.width, canvas.height)
 
+    // Draw the overlay on top if it exists
+    if (overlayRef.current) {
+      context.drawImage(overlayRef.current, 0, 0, canvas.width, canvas.height)
+    }
+
     // Convert canvas to image data URL
     const imageSrc = canvas.toDataURL('image/png')
     onScreenshot(imageSrc)
   }, [isStreaming, onCameraError, onScreenshot])
 
-  const toggleFaceDetection = useCallback(() => {
+  const toggleFaceDetection = useCallback(async () => {
     if (faceDetectionEnabled && isDetecting) {
       stopDetection()
-    } else if (!faceDetectionEnabled && isStreaming && videoRef.current && canvasRef.current) {
-      startDetection(videoRef.current, canvasRef.current)
+      setFaceDetectionEnabled(false)
+    } else if (!faceDetectionEnabled && isStreaming && videoRef.current) {
+      setFaceDetectionEnabled(true)
+      // Small delay to ensure state is updated
+      setTimeout(async () => {
+        if (videoRef.current) {
+          await startDetection(videoRef.current)
+        }
+      }, 100)
     }
-    setFaceDetectionEnabled(!faceDetectionEnabled)
   }, [faceDetectionEnabled, isDetecting, isStreaming, startDetection, stopDetection])
 
   // Cleanup on unmount
@@ -150,21 +164,34 @@ const WebcamCapture: React.FC<WebcamCaptureProps> = ({
 
   return (
     <div className="camera-container">
-      <div style={{ position: 'relative', display: 'inline-block' }}>
+      <div style={{
+        position: 'relative',
+        display: 'inline-block',
+        overflow: 'hidden',
+        maxWidth: '100%',
+        maxHeight: '100vh'
+      }}>
         <video
           ref={videoRef}
           className="video-feed"
           autoPlay
           playsInline
           muted
-          style={{ display: isStreaming ? 'block' : 'none' }}
+          style={{
+            display: isStreaming ? 'block' : 'none',
+            maxWidth: '100%',
+            height: 'auto'
+          }}
         />
         
         {isStreaming && videoSize.width > 0 && (
-          <FaceOverlay
-            faces={detectedFaces}
+          <FaceApiOverlay
+            ref={overlayRef}
+            faces={faceDetectionEnabled ? detectedFaces : []}
             videoWidth={videoSize.width}
             videoHeight={videoSize.height}
+            showLandmarks={false}
+            showExpressions={false}
           />
         )}
       </div>
@@ -173,16 +200,20 @@ const WebcamCapture: React.FC<WebcamCaptureProps> = ({
         <div className="camera-placeholder" style={{
           width: '640px',
           height: '480px',
-          backgroundColor: '#1a1a1a',
+          backgroundColor: 'rgba(236, 72, 153, 0.05)',
           display: 'flex',
+          flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
-          borderRadius: '8px',
-          border: '2px dashed #646cff',
+          borderRadius: '12px',
+          border: '2px dashed #ec4899',
           maxWidth: '100%'
         }}>
-          <p style={{ color: '#888', fontSize: '1.2em' }}>
+          <p style={{ color: '#be185d', fontSize: '1.2em', margin: '0 0 10px 0' }}>
             Click "Start Camera" to begin
+          </p>
+          <p style={{ color: '#7c2d12', fontSize: '0.9em', margin: 0 }}>
+            Real-time face detection and emotion analysis ready!
           </p>
         </div>
       )}
@@ -240,18 +271,23 @@ const WebcamCapture: React.FC<WebcamCaptureProps> = ({
       {isStreaming && (
         <div className="detection-status" style={{
           marginTop: '1rem',
-          padding: '0.5rem',
+          padding: '1rem',
           backgroundColor: 'rgba(236, 72, 153, 0.1)',
-          borderRadius: '8px',
-          border: '1px solid rgba(236, 72, 153, 0.2)'
+          borderRadius: '12px',
+          border: '2px solid rgba(236, 72, 153, 0.2)'
         }}>
-          <p style={{ margin: 0, color: '#be185d', fontWeight: '500' }}>
-            Face Detection: {faceDetectionEnabled ? (isDetecting ? '🟢 Active' : '🟡 Starting...') : '🔴 Disabled'} |
-            Faces Detected: {detectedFaces.length}
-          </p>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+            <p style={{ margin: 0, color: '#be185d', fontWeight: '600' }}>
+              🤖 AI Models: {isModelLoading ? '🟡 Loading...' : (modelsLoaded ? '🟢 Ready' : '🔴 Fallback Mode')}
+            </p>
+            <p style={{ margin: 0, color: '#be185d', fontWeight: '600' }}>
+              👤 Detection: {faceDetectionEnabled ? (isDetecting ? '🟢 Active' : '🟡 Starting...') : '🔴 Disabled'}
+            </p>
+          </div>
+          
           {faceDetectionError && (
             <p style={{ margin: '0.5rem 0 0 0', color: '#be185d', fontSize: '0.9em' }}>
-              Detection Error: {faceDetectionError}
+              ⚠️ {faceDetectionError}
             </p>
           )}
         </div>
