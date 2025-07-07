@@ -1,8 +1,8 @@
-import { useState, useRef, useCallback } from 'react'
+import { useState, useCallback } from 'react'
 import WebcamCapture from './components/WebcamCapture'
 
 function App() {
-  const [isRecording, setIsRecording] = useState(false)
+  const [, setIsRecording] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [status, setStatus] = useState<string | null>(null)
 

@@ -30,22 +30,27 @@ const AdvancedEmotionOverlay = forwardRef<HTMLCanvasElement, AdvancedEmotionOver
   showLandmarks = true,
   showExpressions = true
 }, ref) => {
+  // Suppress unused parameter warnings - these are kept for future functionality
+  void showLandmarks;
+  void showExpressions;
+  
   const canvasRef = useRef<HTMLCanvasElement>(null)
   
   // Use the forwarded ref if provided, otherwise use internal ref
   const canvasElement = (ref as React.RefObject<HTMLCanvasElement>)?.current || canvasRef.current
 
   // Enhanced emotion colors and emojis
-  const emotionConfig: Record<string, { color: string; emoji: string; gradient: string }> = {
-    happy: { color: '#22c55e', emoji: '😊', gradient: 'linear-gradient(135deg, #22c55e, #16a34a)' },
-    sad: { color: '#3b82f6', emoji: '😢', gradient: 'linear-gradient(135deg, #3b82f6, #1d4ed8)' },
-    angry: { color: '#ef4444', emoji: '😠', gradient: 'linear-gradient(135deg, #ef4444, #dc2626)' },
-    surprised: { color: '#f59e0b', emoji: '😲', gradient: 'linear-gradient(135deg, #f59e0b, #d97706)' },
-    fearful: { color: '#8b5cf6', emoji: '😨', gradient: 'linear-gradient(135deg, #8b5cf6, #7c3aed)' },
-    disgusted: { color: '#84cc16', emoji: '🤢', gradient: 'linear-gradient(135deg, #84cc16, #65a30d)' },
-    neutral: { color: '#6b7280', emoji: '😐', gradient: 'linear-gradient(135deg, #6b7280, #4b5563)' },
-    focused: { color: '#ec4899', emoji: '🤔', gradient: 'linear-gradient(135deg, #ec4899, #db2777)' }
-  }
+  // Emotion configuration for future use
+  // const emotionConfig: Record<string, { color: string; emoji: string; gradient: string }> = {
+  //   happy: { color: '#22c55e', emoji: '😊', gradient: 'linear-gradient(135deg, #22c55e, #16a34a)' },
+  //   sad: { color: '#3b82f6', emoji: '😢', gradient: 'linear-gradient(135deg, #3b82f6, #1d4ed8)' },
+  //   angry: { color: '#ef4444', emoji: '😠', gradient: 'linear-gradient(135deg, #ef4444, #dc2626)' },
+  //   surprised: { color: '#f59e0b', emoji: '😲', gradient: 'linear-gradient(135deg, #f59e0b, #d97706)' },
+  //   fearful: { color: '#8b5cf6', emoji: '😨', gradient: 'linear-gradient(135deg, #8b5cf6, #7c3aed)' },
+  //   disgusted: { color: '#84cc16', emoji: '🤢', gradient: 'linear-gradient(135deg, #84cc16, #65a30d)' },
+  //   neutral: { color: '#6b7280', emoji: '😐', gradient: 'linear-gradient(135deg, #6b7280, #4b5563)' },
+  //   focused: { color: '#ec4899', emoji: '🤔', gradient: 'linear-gradient(135deg, #ec4899, #db2777)' }
+  // }
 
   // Memoize face data to prevent unnecessary re-renders
   const stableFaces = useMemo(() => {

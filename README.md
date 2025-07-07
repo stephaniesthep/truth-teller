@@ -75,6 +75,18 @@ truth-teller/
 - `pnpm preview` - Preview production build
 - `pnpm lint` - Run ESLint
 
+### Deployment
+
+This project is configured for easy deployment to Netlify:
+
+1. **Push to GitHub**: Ensure your code is in a GitHub repository
+2. **Connect to Netlify**: Link your repository to Netlify
+3. **Auto-deploy**: Netlify will automatically build and deploy using the configuration in `netlify.toml`
+
+For detailed deployment instructions, see [`DEPLOYMENT.md`](DEPLOYMENT.md).
+
+**Live Demo**: [Deploy your own instance to see it in action!]
+
 ### Browser Compatibility
 
 - ✅ Chrome 60+

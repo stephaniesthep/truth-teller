@@ -1,4 +1,4 @@
-import { useRef, useCallback, useState, useEffect, useMemo } from 'react'
+import { useRef, useCallback, useState, useEffect } from 'react'
 import * as faceapi from 'face-api.js'
 
 interface FaceDetection {
@@ -86,7 +86,7 @@ export const useAdvancedFaceDetection = (): UseAdvancedFaceDetectionReturn => {
 
         console.log(`Detected ${detections.length} faces with face-api.js`)
 
-        const faces: FaceDetection[] = detections.map((detection, index) => {
+        const faces: FaceDetection[] = detections.map((detection) => {
           const box = detection.detection.box
           const expressions = detection.expressions
           

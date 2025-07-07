@@ -10,6 +10,19 @@ export default defineConfig({
   },
   build: {
     outDir: 'dist',
-    sourcemap: true
+    sourcemap: true,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: ['react', 'react-dom'],
+          faceapi: ['face-api.js'],
+          tensorflow: ['@tensorflow/tfjs', '@tensorflow/tfjs-backend-webgl']
+        }
+      }
+    },
+    chunkSizeWarningLimit: 1000
+  },
+  optimizeDeps: {
+    include: ['face-api.js', '@tensorflow/tfjs', '@tensorflow/tfjs-backend-webgl']
   }
 })
