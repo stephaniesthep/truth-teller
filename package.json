@@ -1,0 +1,36 @@
+{
+  "name": "truth-teller",
+  "version": "1.0.0",
+  "description": "Advanced emotion detection system with facial recognition",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0"
+  },
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-router": "^7.0.1",
+    "@remix-run/router": "^1.19.2",
+    "@mediapipe/face_detection": "^0.4.1646425229",
+    "@mediapipe/camera_utils": "^0.3.1640029074"
+  },
+  "devDependencies": {
+    "@types/react": "^18.2.66",
+    "@types/react-dom": "^18.2.22",
+    "@typescript-eslint/eslint-plugin": "^7.2.0",
+    "@typescript-eslint/parser": "^7.2.0",
+    "@vitejs/plugin-react": "^4.2.1",
+    "eslint": "^8.57.0",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "eslint-plugin-react-refresh": "^0.4.6",
+    "typescript": "^5.2.2",
+    "vite": "^5.2.0"
+  },
+  "keywords": ["emotion-detection", "facial-recognition", "tensorflow", "react"],
+  "author": "",
+  "license": "MIT",
+  "packageManager": "pnpm@10.12.4"
+}

@@ -1,0 +1,150 @@
+:root {
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+
+  color-scheme: light;
+  color: #2d1b2e;
+  background: linear-gradient(135deg, #fce7f3 0%, #f3e8ff 50%, #fce7f3 100%);
+  min-height: 100vh;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-text-size-adjust: 100%;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  display: flex;
+  place-items: center;
+  min-width: 320px;
+  min-height: 100vh;
+}
+
+#root {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem;
+  text-align: center;
+}
+
+.camera-container {
+  position: relative;
+  display: inline-block;
+  margin: 2rem 0;
+}
+
+.video-feed {
+  width: 100%;
+  max-width: 640px;
+  height: auto;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+}
+
+.controls {
+  margin: 1rem 0;
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.btn {
+  background-color: #f8fafc;
+  color: #2d1b2e;
+  border: 2px solid #ec4899;
+  padding: 0.6em 1.2em;
+  font-size: 1em;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  border-radius: 12px;
+  transition: all 0.25s ease;
+  box-shadow: 0 2px 4px rgba(236, 72, 153, 0.1);
+}
+
+.btn:hover {
+  background-color: #ec4899;
+  color: white;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(236, 72, 153, 0.2);
+}
+
+.btn:focus,
+.btn:focus-visible {
+  outline: 4px auto -webkit-focus-ring-color;
+}
+
+.btn-primary {
+  background-color: #ec4899;
+  color: white;
+  border-color: #ec4899;
+}
+
+.btn-primary:hover {
+  background-color: #be185d;
+  border-color: #be185d;
+}
+
+.btn-success {
+  background-color: #f472b6;
+  color: white;
+  border-color: #f472b6;
+}
+
+.btn-success:hover {
+  background-color: #ec4899;
+  border-color: #ec4899;
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.error-message {
+  color: #be185d;
+  margin: 1rem 0;
+  padding: 1rem;
+  background-color: rgba(236, 72, 153, 0.1);
+  border-radius: 12px;
+  border: 2px solid rgba(236, 72, 153, 0.2);
+}
+
+.status-message {
+  color: #be185d;
+  margin: 1rem 0;
+  padding: 1rem;
+  background-color: rgba(244, 114, 182, 0.1);
+  border-radius: 12px;
+  border: 2px solid rgba(244, 114, 182, 0.2);
+}
+
+.app-header {
+  margin-bottom: 2rem;
+}
+
+.app-title {
+  font-size: 3.2em;
+  line-height: 1.1;
+  margin-bottom: 0.5rem;
+  background: linear-gradient(45deg, #ec4899, #f472b6, #be185d);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-weight: 700;
+}
+
+.app-subtitle {
+  font-size: 1.2em;
+  color: #7c2d12;
+  margin-bottom: 2rem;
+  font-weight: 500;
+}
