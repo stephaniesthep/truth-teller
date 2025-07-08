@@ -1,6 +1,8 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
+import html2canvas from 'html2canvas'
 import { useAdvancedFaceDetection } from '../hooks/useFaceApiDetection'
 import FaceApiOverlay from './FaceApiOverlay'
+import PhotoboothFrame from './PhotoboothFrame'
 
 interface WebcamCaptureProps {
   onCameraStart: () => void
@@ -18,12 +20,14 @@ const WebcamCapture: React.FC<WebcamCaptureProps> = ({
   const videoRef = useRef<HTMLVideoElement>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const overlayRef = useRef<HTMLCanvasElement>(null)
+  const frameRef = useRef<HTMLDivElement>(null)
   const streamRef = useRef<MediaStream | null>(null)
   
   const [isStreaming, setIsStreaming] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [videoSize, setVideoSize] = useState({ width: 0, height: 0 })
   const [faceDetectionEnabled, setFaceDetectionEnabled] = useState(true)
+  const [capturedImage, setCapturedImage] = useState<string | null>(null)
 
   const {
     isDetecting,
@@ -39,6 +43,58 @@ const WebcamCapture: React.FC<WebcamCaptureProps> = ({
     setIsLoading(true)
     
     try {
+      // Check if we're in a secure context (required for camera access on mobile)
+      if (location.protocol !== 'https:' && location.hostname !== 'localhost') {
+        throw new Error('Camera access requires HTTPS. Please access this site over HTTPS.')
+      }
+      // Check if getUserMedia is supported
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        // Fallback for older browsers
+        const nav = navigator as any
+        const getUserMedia = nav.getUserMedia ||
+                           nav.webkitGetUserMedia ||
+                           nav.mozGetUserMedia ||
+                           nav.msGetUserMedia
+
+        if (!getUserMedia) {
+          throw new Error('Camera access is not supported on this device/browser. Please try using a modern browser like Chrome, Firefox, or Safari.')
+        }
+
+        // Use the fallback method
+        const constraints = {
+          video: {
+            width: { ideal: 640 },
+            height: { ideal: 480 },
+            facingMode: 'user'
+          },
+          audio: false
+        }
+
+        const stream = await new Promise<MediaStream>((resolve, reject) => {
+          getUserMedia.call(navigator, constraints, resolve, reject)
+        })
+
+        if (videoRef.current) {
+          videoRef.current.srcObject = stream
+          streamRef.current = stream
+          
+          videoRef.current.onloadedmetadata = () => {
+            const video = videoRef.current!
+            setVideoSize({ width: video.videoWidth, height: video.videoHeight })
+            setIsStreaming(true)
+            setIsLoading(false)
+            onCameraStart()
+            
+            setTimeout(async () => {
+              if (faceDetectionEnabled) {
+                await startDetection(video)
+              }
+            }, 1000)
+          }
+        }
+        return
+      }
+
       const constraints = {
         video: {
           width: { ideal: 640 },
@@ -106,36 +162,70 @@ const WebcamCapture: React.FC<WebcamCaptureProps> = ({
     onCameraStop()
   }, [onCameraStop, stopDetection])
 
-  const takeScreenshot = useCallback(() => {
+  const takeScreenshot = useCallback(async () => {
     if (!videoRef.current || !canvasRef.current || !isStreaming) {
       onCameraError('Cannot take screenshot: camera not active')
       return
     }
 
-    const video = videoRef.current
-    const canvas = canvasRef.current
-    const context = canvas.getContext('2d')
+    try {
+      const video = videoRef.current
+      const canvas = canvasRef.current
+      const context = canvas.getContext('2d')
 
-    if (!context) {
-      onCameraError('Cannot take screenshot: canvas context not available')
-      return
+      if (!context) {
+        onCameraError('Cannot take screenshot: canvas context not available')
+        return
+      }
+
+      // Set canvas dimensions to match video
+      canvas.width = video.videoWidth
+      canvas.height = video.videoHeight
+
+      // Draw the current video frame to canvas
+      context.drawImage(video, 0, 0, canvas.width, canvas.height)
+
+      // Draw the overlay on top if it exists
+      if (overlayRef.current) {
+        context.drawImage(overlayRef.current, 0, 0, canvas.width, canvas.height)
+      }
+
+      // Convert canvas to image data URL
+      const capturedImageData = canvas.toDataURL('image/png')
+      
+      // Set the captured image to show in PhotoboothFrame
+      setCapturedImage(capturedImageData)
+
+      // Wait a bit for the PhotoboothFrame to render with the image
+      setTimeout(async () => {
+        if (frameRef.current) {
+          try {
+            // Capture the PhotoboothFrame with html2canvas
+            const frameCanvas = await html2canvas(frameRef.current, {
+              backgroundColor: null,
+              scale: 2, // Higher quality
+              useCORS: true,
+              allowTaint: true
+            })
+            
+            // Convert to data URL
+            const framedImageSrc = frameCanvas.toDataURL('image/png')
+            onScreenshot(framedImageSrc)
+            
+            // Clear the captured image after a delay
+            setTimeout(() => setCapturedImage(null), 1000)
+          } catch (error) {
+            console.error('Error capturing framed screenshot:', error)
+            onCameraError('Failed to capture framed screenshot')
+            setCapturedImage(null)
+          }
+        }
+      }, 100)
+    } catch (error) {
+      console.error('Error taking screenshot:', error)
+      onCameraError('Failed to take screenshot')
+      setCapturedImage(null)
     }
-
-    // Set canvas dimensions to match video
-    canvas.width = video.videoWidth
-    canvas.height = video.videoHeight
-
-    // Draw the current video frame to canvas
-    context.drawImage(video, 0, 0, canvas.width, canvas.height)
-
-    // Draw the overlay on top if it exists
-    if (overlayRef.current) {
-      context.drawImage(overlayRef.current, 0, 0, canvas.width, canvas.height)
-    }
-
-    // Convert canvas to image data URL
-    const imageSrc = canvas.toDataURL('image/png')
-    onScreenshot(imageSrc)
   }, [isStreaming, onCameraError, onScreenshot])
 
   const toggleFaceDetection = useCallback(async () => {
@@ -298,6 +388,21 @@ const WebcamCapture: React.FC<WebcamCaptureProps> = ({
         ref={canvasRef}
         style={{ display: 'none' }}
       />
+
+      {/* Hidden PhotoboothFrame for screenshot capture */}
+      {capturedImage && (
+        <div
+          ref={frameRef}
+          style={{
+            position: 'fixed',
+            top: '-9999px',
+            left: '-9999px',
+            zIndex: -1
+          }}
+        >
+          <PhotoboothFrame imageData={capturedImage} />
+        </div>
+      )}
     </div>
   )
 }
