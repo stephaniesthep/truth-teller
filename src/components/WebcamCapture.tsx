@@ -203,13 +203,9 @@ const WebcamCapture: React.FC<WebcamCaptureProps> = ({
             // Capture the PhotoboothFrame with html2canvas
             const frameCanvas = await html2canvas(frameRef.current, {
               backgroundColor: null,
-              width: 400,
-              height: 500,
-              scale: 1,
+              scale: 2, // Higher quality
               useCORS: true,
-              allowTaint: true,
-              logging: false,
-              removeContainer: true
+              allowTaint: true
             })
             
             // Convert to data URL
@@ -401,12 +397,10 @@ const WebcamCapture: React.FC<WebcamCaptureProps> = ({
             position: 'fixed',
             top: '-9999px',
             left: '-9999px',
-            zIndex: -1,
-            transform: 'scale(1)',
-            transformOrigin: 'top left'
+            zIndex: -1
           }}
         >
-          <PhotoboothFrame imageData={capturedImage} fixedSize={true} />
+          <PhotoboothFrame imageData={capturedImage} />
         </div>
       )}
     </div>
