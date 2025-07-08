@@ -88,15 +88,15 @@
   z-index: 10;
 }
 
-/* Fixed size frame for screenshot capture - Mobile Portrait */
+/* Fixed size frame for screenshot capture - Square Layout */
 .photobooth-frame-fixed {
   position: relative;
-  padding: 20px;
-  border-radius: 8px;
+  padding: 24px;
+  border-radius: 12px;
   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
   border: 4px solid #f472b6;
-  width: 375px;
-  height: 667px;
+  width: 500px;
+  height: 500px;
   overflow: hidden;
   background-color: #fce7f3;
   box-sizing: border-box;
@@ -104,14 +104,14 @@
 
 .photobooth-frame-fixed .logo-container {
   text-align: center;
-  margin-bottom: 20px;
+  margin-bottom: 16px;
   position: relative;
   z-index: 10;
 }
 
 .photobooth-frame-fixed .logo-title {
-  font-size: 28px;
-  line-height: 32px;
+  font-size: 24px;
+  line-height: 28px;
   font-weight: 700;
   color: #db2777;
   font-family: serif;
@@ -121,12 +121,12 @@
 
 .photobooth-frame-fixed .photo-container {
   position: relative;
-  padding: 16px;
+  padding: 12px;
   background-color: white;
   border-radius: 8px;
   box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.06);
   z-index: 10;
-  height: 480px;
+  height: 340px;
 }
 
 .photobooth-frame-fixed .photo-frame {
@@ -141,12 +141,13 @@
   justify-content: center;
   background-color: #f8f9fa;
   box-sizing: border-box;
+  aspect-ratio: 1 / 1;
 }
 
 .photobooth-frame-fixed .captured-image {
   width: 100%;
   height: 100%;
-  object-fit: contain;
+  object-fit: cover;
   object-position: center;
 }
 
@@ -156,7 +157,7 @@
   right: 0;
   bottom: 0;
   left: 0;
-  border-radius: 8px;
+  border-radius: 12px;
   background-image: url('/images/frame-background.jpg');
   background-size: cover;
   background-position: center;
@@ -166,7 +167,7 @@
 
 .photobooth-frame-fixed .bottom-logo-container {
   text-align: center;
-  margin-top: 20px;
+  margin-top: 16px;
   position: relative;
   z-index: 10;
 }

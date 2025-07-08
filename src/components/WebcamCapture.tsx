@@ -182,8 +182,18 @@ const WebcamCapture: React.FC<WebcamCaptureProps> = ({
       canvas.width = video.videoWidth
       canvas.height = video.videoHeight
 
-      // Draw the current video frame to canvas
+      // Save the context state
+      context.save()
+      
+      // Flip the canvas horizontally to unreverse the camera
+      context.scale(-1, 1)
+      context.translate(-canvas.width, 0)
+      
+      // Draw the current video frame to canvas (now unmirrored)
       context.drawImage(video, 0, 0, canvas.width, canvas.height)
+      
+      // Restore the context state
+      context.restore()
 
       // Draw the overlay on top if it exists
       if (overlayRef.current) {
@@ -203,8 +213,8 @@ const WebcamCapture: React.FC<WebcamCaptureProps> = ({
             // Capture the PhotoboothFrame with html2canvas
             const frameCanvas = await html2canvas(frameRef.current, {
               backgroundColor: null,
-              width: 375,
-              height: 667,
+              width: 500,
+              height: 500,
               scale: 1,
               useCORS: true,
               allowTaint: true,
@@ -274,7 +284,8 @@ const WebcamCapture: React.FC<WebcamCaptureProps> = ({
           style={{
             display: isStreaming ? 'block' : 'none',
             maxWidth: '100%',
-            height: 'auto'
+            height: 'auto',
+            transform: 'scaleX(-1)'
           }}
         />
         
