@@ -203,8 +203,8 @@ const WebcamCapture: React.FC<WebcamCaptureProps> = ({
             // Capture the PhotoboothFrame with html2canvas
             const frameCanvas = await html2canvas(frameRef.current, {
               backgroundColor: null,
-              width: 400,
-              height: 500,
+              width: 375,
+              height: 667,
               scale: 1,
               useCORS: true,
               allowTaint: true,
